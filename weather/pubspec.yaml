@@ -39,6 +39,11 @@ dependencies:
   http: ^0.13.5
   animation_search_bar: ^0.0.10
   shared_preferences: ^2.0.17
+  intl: ^0.18.0
+  gradient_borders: ^1.0.0
+  weather_animation: ^0.0.2
+  location: ^4.4.0
+  lottie: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +71,7 @@ flutter:
   assets:
     - assets/json/
     - assets/images/
+    - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

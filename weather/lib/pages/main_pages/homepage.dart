@@ -3,20 +3,32 @@ import 'package:weather/pages/main_pages/listpage.dart';
 import 'dart:convert';
 import '../../models/weatherModel.dart';
 import 'package:http/http.dart' as http;
-import '../../models/weatherModel.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.cityid});
+  const HomePage(
+      {super.key,
+      required this.cityWeather,
+      required this.indexx,
+      required this.loc});
 
-  final double cityid;
+  final cityWeather;
+  final indexx;
+  final loc;
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Weather> cityWeather = [];
+  PageController? _pageController;
+  bool? loca;
   @override
   void initState() {
     super.initState();
+    cityWeather = widget.cityWeather;
+    _pageController = PageController(initialPage: widget.indexx);
+    loca = widget.loc;
   }
 
   @override
@@ -56,13 +68,47 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         backgroundColor: Colors.blueGrey,
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("assets/images/04d.jpeg"), fit: BoxFit.cover),
-          ), // Foreground widget here
+        body: Stack(
+          children: [
+            PageView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount:
+                    widget.loc ? cityWeather.length + 1 : cityWeather.length,
+                controller: _pageController,
+                pageSnapping: true,
+                itemBuilder: (ctx, i) {
+                  if (i == 0 && widget.loc) {
+                    return Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/images/04d.jpeg"),
+                            fit: BoxFit.cover),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('TESTE'),
+                      ),
+                    );
+                  } else {
+                    int cityIndex = widget.loc ? i - 1 : i;
+                    return Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/images/04d.jpeg"),
+                            fit: BoxFit.cover),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(cityWeather[cityIndex].cityName),
+                      ),
+                    );
+                  }
+                }),
+          ],
         ));
   }
 }
