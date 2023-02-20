@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.6"
+  arrow_path:
+    dependency: "direct main"
+    description:
+      name: arrow_path
+      sha256: b526d6ebbc1be2b53182383e88baa74218517f3a9b8502f1b930d79cde8bcb87
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   async:
     dependency: transitive
     description:
@@ -33,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  carousel_slider:
+    dependency: "direct main"
+    description:
+      name: carousel_slider
+      sha256: "9c695cc963bf1d04a47bd6021f68befce8970bcd61d24938e1fb0918cf5d9c42"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.1"
   characters:
     dependency: transitive
     description:
@@ -81,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  cupertino_listview:
+    dependency: "direct main"
+    description:
+      name: cupertino_listview
+      sha256: "6ad1e8c1014003c3f41b11d5a7b64e5957d19a1c9f0dd7180e94e8b03211aafe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -126,6 +150,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
+  flutter_sensors:
+    dependency: transitive
+    description:
+      name: flutter_sensors
+      sha256: "3ac86cd414eb127c4afb97b6d986996d5f4bd7e2223f5c9aea53c13a7022c7aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -389,6 +421,30 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sleek_circular_slider:
+    dependency: "direct main"
+    description:
+      name: sleek_circular_slider
+      sha256: "8844d036269a13e60dda4e16534d30d27cacaff8d2f10d042d9d61d111468b13"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+  smooth_compass:
+    dependency: "direct main"
+    description:
+      name: smooth_compass
+      sha256: dd12ef44517c5ef176e597deaa530e508ebbfaa8ba881398b4599d6a16e5576b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
+  smooth_page_indicator:
+    dependency: "direct main"
+    description:
+      name: smooth_page_indicator
+      sha256: "8c301bc686892306cd41672c1880167f140c16be305d5ede8201fefd9fcda829"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   source_span:
     dependency: transitive
     description:

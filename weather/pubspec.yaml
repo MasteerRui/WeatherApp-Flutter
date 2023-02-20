@@ -44,6 +44,12 @@ dependencies:
   weather_animation: ^0.0.2
   location: ^4.4.0
   lottie: ^2.2.0
+  cupertino_listview: ^2.0.0
+  smooth_page_indicator: ^1.0.1
+  carousel_slider: ^4.2.1
+  sleek_circular_slider: ^2.0.1
+  smooth_compass: ^2.0.4
+  arrow_path: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +77,7 @@ flutter:
   assets:
     - assets/json/
     - assets/images/
+    - assets/icons/
     - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
