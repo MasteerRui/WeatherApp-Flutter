@@ -16,12 +16,14 @@ class DailyData {
   final int dt;
   final double tempmax;
   final double tempmin;
+  final double rain;
   final List<WeatherDy> weather;
 
   DailyData(
       {required this.dt,
       required this.tempmax,
       required this.tempmin,
+      required this.rain,
       required this.weather});
 
   factory DailyData.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class DailyData {
       dt: json['dt'],
       tempmax: json['temp']['max'].toDouble(),
       tempmin: json['temp']['min'].toDouble(),
+      rain: json['pop'].toDouble() * 100,
       weather: weatherData,
     );
   }

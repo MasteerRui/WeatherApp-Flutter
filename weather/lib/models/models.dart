@@ -14,13 +14,38 @@ class WeatherInfo {
 class TemperatureInfo {
   final num temperature;
   final num humidity;
+  final num feelslike;
+  final num pressure;
 
-  TemperatureInfo({required this.temperature, required this.humidity});
+  TemperatureInfo(
+      {required this.temperature,
+      required this.humidity,
+      required this.feelslike,
+      required this.pressure});
 
   factory TemperatureInfo.fromJson(Map<String, dynamic> json) {
     final temperature = json['temp'];
     final humidity = json['humidity'];
-    return TemperatureInfo(temperature: temperature, humidity: humidity);
+    final feelslike = json['feels_like'];
+    final pressure = json['pressure'];
+    return TemperatureInfo(
+        temperature: temperature,
+        humidity: humidity,
+        feelslike: feelslike,
+        pressure: pressure);
+  }
+}
+
+class LocsInfo {
+  final num lat;
+  final num lon;
+
+  LocsInfo({required this.lat, required this.lon});
+
+  factory LocsInfo.fromJson(Map<String, dynamic> json) {
+    final lat = json['lat'];
+    final lon = json['lon'];
+    return LocsInfo(lat: lat, lon: lon);
   }
 }
 
@@ -40,7 +65,9 @@ class WindInfo {
 class WeatherResponse {
   final String cityName;
   final num timezone;
+  final num visibility;
   final TemperatureInfo tempInfo;
+  final LocsInfo locsInfo;
   final WindInfo windInfo;
   final WeatherInfo weatherInfo;
 
@@ -51,6 +78,8 @@ class WeatherResponse {
   WeatherResponse(
       {required this.cityName,
       required this.tempInfo,
+      required this.visibility,
+      required this.locsInfo,
       required this.windInfo,
       required this.weatherInfo,
       required this.timezone});
@@ -58,9 +87,13 @@ class WeatherResponse {
   factory WeatherResponse.fromJson(Map<String, dynamic> json) {
     final cityName = json['name'] ?? '';
     final timezone = json['timezone'] ?? 0;
+    final visibility = json['visibility'] / 1000;
 
     final tempInfoJson = json['main'];
     final tempInfo = TemperatureInfo.fromJson(tempInfoJson);
+
+    final locsInfoJson = json['coord'];
+    final locsInfo = LocsInfo.fromJson(locsInfoJson);
 
     final windInfoJson = json['wind'];
     final windInfo = WindInfo.fromJson(windInfoJson);
@@ -71,7 +104,9 @@ class WeatherResponse {
     return WeatherResponse(
         cityName: cityName,
         timezone: timezone,
+        visibility: visibility,
         tempInfo: tempInfo,
+        locsInfo: locsInfo,
         windInfo: windInfo,
         weatherInfo: weatherInfo);
   }

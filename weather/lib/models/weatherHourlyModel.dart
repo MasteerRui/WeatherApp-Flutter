@@ -20,6 +20,7 @@ class HourlyData {
   final int humidity;
   final double dewPoint;
   final double uvi;
+  final double? rain;
   final int clouds;
   final int visibility;
   final double windSpeed;
@@ -36,6 +37,7 @@ class HourlyData {
     required this.humidity,
     required this.dewPoint,
     required this.uvi,
+    required this.rain,
     required this.clouds,
     required this.visibility,
     required this.windSpeed,
@@ -58,6 +60,7 @@ class HourlyData {
       humidity: json['humidity'],
       dewPoint: json['dew_point'].toDouble(),
       uvi: json['uvi'].toDouble(),
+      rain: json['pop'].toDouble() * 100,
       clouds: json['clouds'],
       visibility: json['visibility'],
       windSpeed: json['wind_speed'].toDouble(),

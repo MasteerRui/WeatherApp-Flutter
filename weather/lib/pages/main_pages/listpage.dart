@@ -36,14 +36,20 @@ class _CityListState extends State<CityList> {
   bool isLoading = true;
   bool edit = false;
   bool enabled = false;
+  bool loading = true;
   LocationData? _locationData;
   final _dataService = DataService();
   WeatherResponse? _response;
   LocationData? _previousLocationData;
 
-  void _search(long, lat) async {
-    final response = await _dataService.getWeather(long, lat);
-    setState(() => _response = response);
+  Future<WeatherResponse> getWeather(long, lat) async {
+    final response = await http.get(Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?&lon=$long&lat=$lat&appid=d89566b7541ecad9d211291d677951ba&units=metric'));
+    final json = jsonDecode(response.body);
+    var responsee = WeatherResponse.fromJson(json);
+    setState(() => _response = responsee);
+
+    return responsee;
   }
 
   Future<Object> fetchWeather() async {
@@ -139,12 +145,13 @@ class _CityListState extends State<CityList> {
       if (distanceInMeters > 500) {
         // change threshold as required
         _currentLocationData = currentLocation;
-        _search(_currentLocationData.longitude, _currentLocationData.latitude);
+        getWeather(
+            _currentLocationData.longitude, _currentLocationData.latitude);
       }
     });
 
     _previousLocationData = _currentLocationData;
-    _search(_previousLocationData.longitude, _previousLocationData.latitude);
+    getWeather(_previousLocationData.longitude, _previousLocationData.latitude);
   }
 
   double _calculateDistance(lat1, lon1, lat2, lon2) {
@@ -358,745 +365,1428 @@ class _CityListState extends State<CityList> {
             ),
           ),
           Flexible(
-            child: _searchController.text.isNotEmpty
-                ? filteredCities.isNotEmpty
-                    ? ListView.builder(
-                        shrinkWrap: true,
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: 30,
-                        itemBuilder: (context, index) {
-                          if (index >= filteredCities.length) {
-                            return SizedBox.shrink();
-                          }
-                          final cityName =
-                              filteredCities[index]['owm_city_name'];
-                          final country = filteredCities[index]['country_long'];
-                          final state =
-                              filteredCities[index]['admin_level_1_long'];
-                          final teste = '$cityName, $state, $country';
+              child: _searchController.text.isNotEmpty
+                  ? filteredCities.isNotEmpty
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: 30,
+                          itemBuilder: (context, index) {
+                            if (index >= filteredCities.length) {
+                              return SizedBox.shrink();
+                            }
+                            final cityName =
+                                filteredCities[index]['owm_city_name'];
+                            final country =
+                                filteredCities[index]['country_long'];
+                            final state =
+                                filteredCities[index]['admin_level_1_long'];
+                            final teste = '$cityName, $state, $country';
 
-                          final query = _searchController.text.toLowerCase();
-                          final matchIndex = teste.toLowerCase().indexOf(query);
+                            final query = _searchController.text.toLowerCase();
+                            final matchIndex =
+                                teste.toLowerCase().indexOf(query);
 
-                          if (matchIndex == -1) {
-                            return SizedBox.shrink();
-                          }
+                            if (matchIndex == -1) {
+                              return SizedBox.shrink();
+                            }
 
-                          final before = teste.substring(0, matchIndex);
-                          final match = teste.substring(
-                              matchIndex, matchIndex + query.length);
-                          final after =
-                              teste.substring(matchIndex + query.length);
+                            final before = teste.substring(0, matchIndex);
+                            final match = teste.substring(
+                                matchIndex, matchIndex + query.length);
+                            final after =
+                                teste.substring(matchIndex + query.length);
 
-                          return GestureDetector(
-                            onTap: () {
-                              saveCityIds(filteredCities[index]['owm_city_id']);
-                              setState(() {
-                                _searchController.text = '';
-                                filteredCities = [];
-                              });
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(13.0),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: before,
-                                      style: TextStyle(color: Colors.white12),
-                                    ),
-                                    TextSpan(
-                                      text: match,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                      text: after,
-                                      style: TextStyle(color: Colors.white12),
-                                    ),
-                                  ],
+                            return GestureDetector(
+                              onTap: () {
+                                saveCityIds(
+                                    filteredCities[index]['owm_city_id']);
+                                setState(() {
+                                  _searchController.text = '';
+                                  filteredCities = [];
+                                });
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(13.0),
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: before,
+                                        style: TextStyle(color: Colors.white12),
+                                      ),
+                                      TextSpan(
+                                        text: match,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(
+                                        text: after,
+                                        style: TextStyle(color: Colors.white12),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        })
-                    : Text(_searchController.text)
-                : ListView.builder(
-                    itemCount:
-                        enabled ? cityWeather.length + 1 : cityWeather.length,
-                    itemBuilder: (ctx, index) {
-                      if (index == 0 && enabled) {
-                        return _response != null
-                            ? Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Card(
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Stack(
-                                      clipBehavior: Clip.none,
-                                      alignment: Alignment.topLeft,
-                                      children: [
-                                        Ink.image(
-                                          image: const AssetImage(
-                                              'assets/images/04d.jpeg'),
-                                          height: 115,
-                                          fit: BoxFit.cover,
-                                          child: InkWell(
-                                            hoverColor: Colors.transparent,
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    maintainState: true,
-                                                    builder: (context) =>
-                                                        HomePage(
-                                                          cityWeather:
-                                                              cityWeather,
-                                                          indexx: index,
-                                                          loc: true,
-                                                          response: _response,
-                                                        )),
-                                              );
-                                            },
-                                          ),
+                            );
+                          })
+                      : Text(_searchController.text)
+                  : enabled && loading == true
+                      ? ListView.builder(
+                          itemCount: enabled
+                              ? cityWeather.length + 1
+                              : cityWeather.length,
+                          itemBuilder: (ctx, index) {
+                            if (index == 0 && enabled) {
+                              return _response != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Card(
+                                        color: Colors.transparent,
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
-                                        Column(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                    child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      14.0),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                        child: Stack(
+                                            clipBehavior: Clip.none,
+                                            alignment: Alignment.topLeft,
+                                            children: [
+                                              Ink.image(
+                                                image: AssetImage(
+                                                    'assets/images/${_response!.weatherInfo.icon}.jpeg'),
+                                                height: 115,
+                                                fit: BoxFit.cover,
+                                                child: InkWell(
+                                                  hoverColor: Colors.black,
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          maintainState: true,
+                                                          builder: (context) =>
+                                                              HomePage(
+                                                                cityWeather:
+                                                                    cityWeather,
+                                                                indexx: index,
+                                                                loc: true,
+                                                                response:
+                                                                    _response,
+                                                              )),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Row(
                                                     children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            'My Location',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 19,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700),
-                                                          ),
-                                                          Lottie.asset(
-                                                              'assets/animations/greenn.json',
-                                                              repeat: true,
-                                                              reverse: true,
-                                                              height: 25)
-                                                        ],
-                                                      ),
-                                                      Text(
-                                                        _response!.cityName
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                      ),
-                                                      Padding(
+                                                      Expanded(
+                                                          child: Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                .only(top: 20),
-                                                        child: Text(
-                                                          _response!.weatherInfo
-                                                              .description
-                                                              .toTitleCase(),
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 22),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                    child: Container(
-                                                      width: 80,
-                                                      height: 78,
-                                                      color: Colors.transparent,
-                                                      child: Stack(
-                                                        children: [
-                                                          BackdropFilter(
-                                                            filter: ImageFilter
-                                                                .blur(
-                                                              sigmaX: 9.0,
-                                                              sigmaY: 9.0,
+                                                                .all(14.0),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Text(
+                                                                  'My Locationm',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          19,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700),
+                                                                ),
+                                                                Lottie.asset(
+                                                                    'assets/animations/greenn.json',
+                                                                    repeat:
+                                                                        true,
+                                                                    reverse:
+                                                                        true,
+                                                                    height: 25)
+                                                              ],
                                                             ),
-                                                            child: Container(),
-                                                          ),
-                                                          Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          12),
-                                                              border: Border.all(
+                                                            Text(
+                                                              _response!
+                                                                  .cityName
+                                                                  .toString(),
+                                                              style: TextStyle(
                                                                   color: Colors
-                                                                      .white
-                                                                      .withOpacity(
-                                                                          0.13)),
-                                                              gradient: LinearGradient(
-                                                                  begin: Alignment
-                                                                      .topLeft,
-                                                                  end: Alignment
-                                                                      .bottomRight,
-                                                                  colors: [
-                                                                    //begin color
-                                                                    Colors.white
-                                                                        .withOpacity(
-                                                                            0.15),
-                                                                    //end color
-                                                                    Colors.white
-                                                                        .withOpacity(
-                                                                            0.05),
-                                                                  ]),
+                                                                      .white,
+                                                                  fontSize: 13,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
                                                             ),
-                                                          ),
-                                                          //child ==> the first/top layer of stack
-                                                          Center(
-                                                              child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceEvenly,
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              Text(
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      top: 20),
+                                                              child: Text(
                                                                 _response!
-                                                                        .tempInfo
-                                                                        .temperature
-                                                                        .toStringAsFixed(
-                                                                            0) +
-                                                                    '\u00B0',
+                                                                    .weatherInfo
+                                                                    .description
+                                                                    .toTitleCase(),
                                                                 style: TextStyle(
                                                                     color: Colors
                                                                         .white,
                                                                     fontSize:
-                                                                        28,
+                                                                        13,
                                                                     fontWeight:
                                                                         FontWeight
-                                                                            .w500),
+                                                                            .w600),
                                                               ),
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Text(
-                                                                    'H:' +
-                                                                        _response!
-                                                                            .tempInfo
-                                                                            .temperature
-                                                                            .toStringAsFixed(0) +
-                                                                        '\u00B0',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            13,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 2,
-                                                                  ),
-                                                                  Text(
-                                                                    'L:' +
-                                                                        _response!
-                                                                            .tempInfo
-                                                                            .temperature
-                                                                            .toStringAsFixed(0) +
-                                                                        '\u00B0',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            13,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                            ],
-                                                          )),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            )
-                                          ],
-                                        )
-                                      ]),
-                                ),
-                              )
-                            : Container();
-                      } else {
-                        int cityIndex = enabled ? index - 1 : index;
-                        return edit == false
-                            ? GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        maintainState: true,
-                                        builder: (context) => HomePage(
-                                              cityWeather: cityWeather,
-                                              indexx: index,
-                                              loc: true,
-                                              response: _response,
-                                            )),
-                                  );
-                                },
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Card(
-                                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Stack(
-                                        clipBehavior: Clip.none,
-                                        alignment: Alignment.topLeft,
-                                        children: [
-                                          Ink.image(
-                                            image: const AssetImage(
-                                                'assets/images/04d.jpeg'),
-                                            height: 115,
-                                            fit: BoxFit.cover,
-                                            child: InkWell(
-                                              hoverColor: Colors.transparent,
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      maintainState: true,
-                                                      builder: (context) =>
-                                                          HomePage(
-                                                            cityWeather:
-                                                                cityWeather,
-                                                            indexx: index,
-                                                            loc: true,
-                                                            response: _response,
-                                                          )),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                      child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            14.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          cityWeather[cityIndex]
-                                                              .cityName,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 19,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700),
-                                                        ),
-                                                        UnixTimestampClock(
-                                                          timezone: cityWeather[
-                                                                  cityIndex]
-                                                              .cityTimezone
-                                                              .toInt(),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 20),
-                                                          child: Text(
-                                                            cityWeather[
-                                                                    cityIndex]
-                                                                .cityTempDesc
-                                                                .toTitleCase(),
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  )),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 22),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12),
-                                                      child: Container(
-                                                        width: 80,
-                                                        height: 78,
-                                                        color:
-                                                            Colors.transparent,
-                                                        child: Stack(
-                                                          children: [
-                                                            BackdropFilter(
-                                                              filter:
-                                                                  ImageFilter
-                                                                      .blur(
-                                                                sigmaX: 9.0,
-                                                                sigmaY: 9.0,
-                                                              ),
-                                                              child:
-                                                                  Container(),
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            12),
-                                                                border: Border.all(
-                                                                    color: Colors
-                                                                        .white
-                                                                        .withOpacity(
-                                                                            0.13)),
-                                                                gradient: LinearGradient(
-                                                                    begin: Alignment
-                                                                        .topLeft,
-                                                                    end: Alignment
-                                                                        .bottomRight,
-                                                                    colors: [
-                                                                      //begin color
-                                                                      Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.15),
-                                                                      //end color
-                                                                      Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.05),
-                                                                    ]),
-                                                              ),
-                                                            ),
-                                                            //child ==> the first/top layer of stack
-                                                            Center(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceEvenly,
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                Text(
-                                                                  cityWeather[cityIndex]
-                                                                          .cityTemp
-                                                                          .toStringAsFixed(
-                                                                              0) +
-                                                                      '\u00B0',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontSize:
-                                                                          28,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500),
-                                                                ),
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Text(
-                                                                      'H:' +
-                                                                          cityWeather[cityIndex]
-                                                                              .cityHtemp
-                                                                              .toStringAsFixed(0) +
-                                                                          '\u00B0',
-                                                                      style: TextStyle(
-                                                                          color: Colors
-                                                                              .white,
-                                                                          fontSize:
-                                                                              13,
-                                                                          fontWeight:
-                                                                              FontWeight.w600),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      width: 2,
-                                                                    ),
-                                                                    Text(
-                                                                      'L:' +
-                                                                          cityWeather[cityIndex]
-                                                                              .cityLtemp
-                                                                              .toStringAsFixed(0) +
-                                                                          '\u00B0',
-                                                                      style: TextStyle(
-                                                                          color: Colors
-                                                                              .white,
-                                                                          fontSize:
-                                                                              13,
-                                                                          fontWeight:
-                                                                              FontWeight.w600),
-                                                                    ),
-                                                                  ],
-                                                                )
-                                                              ],
-                                                            )),
+                                                            )
                                                           ],
                                                         ),
-                                                      ),
-                                                    ),
+                                                      )),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 22),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          child: Container(
+                                                            width: 80,
+                                                            height: 78,
+                                                            color: Colors
+                                                                .transparent,
+                                                            child: Stack(
+                                                              children: [
+                                                                BackdropFilter(
+                                                                  filter:
+                                                                      ImageFilter
+                                                                          .blur(
+                                                                    sigmaX: 9.0,
+                                                                    sigmaY: 9.0,
+                                                                  ),
+                                                                  child:
+                                                                      Container(),
+                                                                ),
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            12),
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .white
+                                                                            .withOpacity(0.13)),
+                                                                    gradient: LinearGradient(
+                                                                        begin: Alignment
+                                                                            .topLeft,
+                                                                        end: Alignment
+                                                                            .bottomRight,
+                                                                        colors: [
+                                                                          //begin color
+                                                                          Colors
+                                                                              .white
+                                                                              .withOpacity(0.15),
+                                                                          //end color
+                                                                          Colors
+                                                                              .white
+                                                                              .withOpacity(0.05),
+                                                                        ]),
+                                                                  ),
+                                                                ),
+                                                                //child ==> the first/top layer of stack
+                                                                Center(
+                                                                    child:
+                                                                        Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceEvenly,
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .max,
+                                                                  children: [
+                                                                    Text(
+                                                                      _response!
+                                                                              .tempInfo
+                                                                              .temperature
+                                                                              .toStringAsFixed(0) +
+                                                                          '\u00B0',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              28,
+                                                                          fontWeight:
+                                                                              FontWeight.w500),
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          'H:' +
+                                                                              _response!.tempInfo.temperature.toStringAsFixed(0) +
+                                                                              '\u00B0',
+                                                                          style: TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 13,
+                                                                              fontWeight: FontWeight.w600),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              2,
+                                                                        ),
+                                                                        Text(
+                                                                          'L:' +
+                                                                              _response!.tempInfo.temperature.toStringAsFixed(0) +
+                                                                              '\u00B0',
+                                                                          style: TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 13,
+                                                                              fontWeight: FontWeight.w600),
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  ],
+                                                                )),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
                                                   )
                                                 ],
                                               )
-                                            ],
-                                          )
-                                        ]),
-                                  ),
-                                ))
-                            : Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Center(
-                                  child: Card(
-                                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Stack(
-                                        clipBehavior: Clip.none,
-                                        alignment: Alignment.topLeft,
-                                        children: [
-                                          Ink.image(
-                                            image: const AssetImage(
-                                                'assets/images/04d.jpeg'),
-                                            height: 75,
-                                            fit: BoxFit.cover,
-                                            child: InkWell(
-                                              hoverColor: Colors.transparent,
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      maintainState: true,
-                                                      builder: (context) =>
-                                                          HomePage(
-                                                            cityWeather:
-                                                                cityWeather,
-                                                            indexx: index,
-                                                            loc: true,
-                                                            response: _response,
-                                                          )),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                      child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            14.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          cityWeather[cityIndex]
-                                                              .cityName,
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 19,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700),
-                                                        ),
-                                                        UnixTimestampClock(
-                                                          timezone: cityWeather[
-                                                                  cityIndex]
-                                                              .cityTimezone
-                                                              .toInt(),
-                                                        ),
-                                                      ],
-                                                    ),
+                                            ]),
+                                      ),
+                                    )
+                                  : Container();
+                            } else {
+                              int cityIndex = enabled ? index - 1 : index;
+                              return edit == false
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              maintainState: true,
+                                              builder: (context) => HomePage(
+                                                    cityWeather: cityWeather,
+                                                    indexx: index,
+                                                    loc: enabled,
+                                                    response: _response,
                                                   )),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 22),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12),
-                                                      child: Container(
-                                                        width: 45,
-                                                        height: 45,
-                                                        color:
-                                                            Colors.transparent,
-                                                        child: Stack(
-                                                          children: [
-                                                            BackdropFilter(
-                                                              filter:
-                                                                  ImageFilter
-                                                                      .blur(
-                                                                sigmaX: 9.0,
-                                                                sigmaY: 9.0,
-                                                              ),
-                                                              child:
-                                                                  Container(),
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            12),
-                                                                border: Border.all(
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Card(
+                                          color: Colors.transparent,
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Stack(
+                                              clipBehavior: Clip.none,
+                                              alignment: Alignment.topLeft,
+                                              children: [
+                                                Ink.image(
+                                                  image: AssetImage(
+                                                      'assets/images/${cityWeather[cityIndex].cityIcon}.jpeg'),
+                                                  height: 115,
+                                                  fit: BoxFit.cover,
+                                                  child: InkWell(
+                                                    hoverColor: Colors.black,
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            maintainState: true,
+                                                            builder:
+                                                                (context) =>
+                                                                    HomePage(
+                                                                      cityWeather:
+                                                                          cityWeather,
+                                                                      indexx:
+                                                                          index,
+                                                                      loc:
+                                                                          enabled,
+                                                                      response:
+                                                                          _response,
+                                                                    )),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                            child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(14.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                cityWeather[
+                                                                        cityIndex]
+                                                                    .cityName,
+                                                                style: TextStyle(
                                                                     color: Colors
-                                                                        .white
-                                                                        .withOpacity(
-                                                                            0.13)),
-                                                                gradient: LinearGradient(
-                                                                    begin: Alignment
-                                                                        .topLeft,
-                                                                    end: Alignment
-                                                                        .bottomRight,
-                                                                    colors: [
-                                                                      //begin color
-                                                                      Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.15),
-                                                                      //end color
-                                                                      Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.05),
-                                                                    ]),
+                                                                        .white,
+                                                                    fontSize:
+                                                                        19,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
                                                               ),
-                                                            ),
-
-                                                            //child ==> the first/top layer of stack
-                                                            Center(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceEvenly,
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                Text(
-                                                                  cityWeather[cityIndex]
-                                                                          .cityTemp
-                                                                          .toStringAsFixed(
-                                                                              0) +
-                                                                      '\u00B0',
+                                                              UnixTimestampClock(
+                                                                timezone: cityWeather[
+                                                                        cityIndex]
+                                                                    .cityTimezone
+                                                                    .toInt(),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            20),
+                                                                child: Text(
+                                                                  cityWeather[
+                                                                          cityIndex]
+                                                                      .cityTempDesc
+                                                                      .toTitleCase(),
                                                                   style: TextStyle(
                                                                       color: Colors
                                                                           .white,
                                                                       fontSize:
-                                                                          17,
+                                                                          13,
                                                                       fontWeight:
                                                                           FontWeight
-                                                                              .w500),
+                                                                              .w600),
                                                                 ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        )),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      22),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                            child: Container(
+                                                              width: 80,
+                                                              height: 78,
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: Stack(
+                                                                children: [
+                                                                  BackdropFilter(
+                                                                    filter:
+                                                                        ImageFilter
+                                                                            .blur(
+                                                                      sigmaX:
+                                                                          9.0,
+                                                                      sigmaY:
+                                                                          9.0,
+                                                                    ),
+                                                                    child:
+                                                                        Container(),
+                                                                  ),
+                                                                  Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .white
+                                                                              .withOpacity(0.13)),
+                                                                      gradient: LinearGradient(
+                                                                          begin: Alignment
+                                                                              .topLeft,
+                                                                          end: Alignment
+                                                                              .bottomRight,
+                                                                          colors: [
+                                                                            //begin color
+                                                                            Colors.white.withOpacity(0.15),
+                                                                            //end color
+                                                                            Colors.white.withOpacity(0.05),
+                                                                          ]),
+                                                                    ),
+                                                                  ),
+                                                                  //child ==> the first/top layer of stack
+                                                                  Center(
+                                                                      child:
+                                                                          Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceEvenly,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    children: [
+                                                                      Text(
+                                                                        cityWeather[cityIndex].cityTemp.toStringAsFixed(0) +
+                                                                            '\u00B0',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .white,
+                                                                            fontSize:
+                                                                                28,
+                                                                            fontWeight:
+                                                                                FontWeight.w500),
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          Text(
+                                                                            'H:' +
+                                                                                cityWeather[cityIndex].cityHtemp.toStringAsFixed(0) +
+                                                                                '\u00B0',
+                                                                            style: TextStyle(
+                                                                                color: Colors.white,
+                                                                                fontSize: 13,
+                                                                                fontWeight: FontWeight.w600),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width:
+                                                                                2,
+                                                                          ),
+                                                                          Text(
+                                                                            'L:' +
+                                                                                cityWeather[cityIndex].cityLtemp.toStringAsFixed(0) +
+                                                                                '\u00B0',
+                                                                            style: TextStyle(
+                                                                                color: Colors.white,
+                                                                                fontSize: 13,
+                                                                                fontWeight: FontWeight.w600),
+                                                                          ),
+                                                                        ],
+                                                                      )
+                                                                    ],
+                                                                  )),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    )
+                                                  ],
+                                                )
+                                              ]),
+                                        ),
+                                      ))
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Center(
+                                        child: Card(
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          child: Stack(
+                                              clipBehavior: Clip.none,
+                                              alignment: Alignment.topLeft,
+                                              children: [
+                                                Ink.image(
+                                                  image: AssetImage(
+                                                      'assets/images/${cityWeather[cityIndex].cityIcon}.jpeg'),
+                                                  height: 75,
+                                                  fit: BoxFit.cover,
+                                                  child: InkWell(
+                                                    hoverColor: Colors.black,
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            maintainState: true,
+                                                            builder:
+                                                                (context) =>
+                                                                    HomePage(
+                                                                      cityWeather:
+                                                                          cityWeather,
+                                                                      indexx:
+                                                                          index,
+                                                                      loc: true,
+                                                                      response:
+                                                                          _response,
+                                                                    )),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                            child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(14.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                cityWeather[
+                                                                        cityIndex]
+                                                                    .cityName,
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        19,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              UnixTimestampClock(
+                                                                timezone: cityWeather[
+                                                                        cityIndex]
+                                                                    .cityTimezone
+                                                                    .toInt(),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        )),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      22),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                            child: Container(
+                                                              width: 45,
+                                                              height: 45,
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: Stack(
+                                                                children: [
+                                                                  BackdropFilter(
+                                                                    filter:
+                                                                        ImageFilter
+                                                                            .blur(
+                                                                      sigmaX:
+                                                                          9.0,
+                                                                      sigmaY:
+                                                                          9.0,
+                                                                    ),
+                                                                    child:
+                                                                        Container(),
+                                                                  ),
+                                                                  Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .white
+                                                                              .withOpacity(0.13)),
+                                                                      gradient: LinearGradient(
+                                                                          begin: Alignment
+                                                                              .topLeft,
+                                                                          end: Alignment
+                                                                              .bottomRight,
+                                                                          colors: [
+                                                                            //begin color
+                                                                            Colors.white.withOpacity(0.15),
+                                                                            //end color
+                                                                            Colors.white.withOpacity(0.05),
+                                                                          ]),
+                                                                    ),
+                                                                  ),
+
+                                                                  //child ==> the first/top layer of stack
+                                                                  Center(
+                                                                      child:
+                                                                          Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceEvenly,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    children: [
+                                                                      Text(
+                                                                        cityWeather[cityIndex].cityTemp.toStringAsFixed(0) +
+                                                                            '\u00B0',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .white,
+                                                                            fontSize:
+                                                                                17,
+                                                                            fontWeight:
+                                                                                FontWeight.w500),
+                                                                      ),
+                                                                    ],
+                                                                  )),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          height: 75,
+                                                          width: 59,
+                                                          color: Colors.red,
+                                                          child: IconButton(
+                                                              onPressed: () {
+                                                                removeCityIds(
+                                                                    cityWeather[
+                                                                            cityIndex]
+                                                                        .cityId
+                                                                        .toString());
+                                                              },
+                                                              icon: Icon(
+                                                                CupertinoIcons
+                                                                    .delete,
+                                                                color: Colors
+                                                                    .white,
+                                                              )),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ]),
+                                        ),
+                                      ));
+                            }
+                          },
+                        )
+                      : ListView.builder(
+                          itemCount: enabled
+                              ? cityWeather.length + 1
+                              : cityWeather.length,
+                          itemBuilder: (ctx, index) {
+                            if (index == 0 && enabled) {
+                              return _response != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Card(
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Stack(
+                                            clipBehavior: Clip.none,
+                                            alignment: Alignment.topLeft,
+                                            children: [
+                                              Ink.image(
+                                                image: AssetImage(
+                                                    'assets/images/${_response!.weatherInfo.icon}.jpeg'),
+                                                height: 115,
+                                                fit: BoxFit.cover,
+                                                child: InkWell(
+                                                  hoverColor: Colors.black,
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          maintainState: true,
+                                                          builder: (context) =>
+                                                              HomePage(
+                                                                cityWeather:
+                                                                    cityWeather,
+                                                                indexx: index,
+                                                                loc: true,
+                                                                response:
+                                                                    _response,
+                                                              )),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                          child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(14.0),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Text(
+                                                                  'My Location',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          19,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700),
+                                                                ),
+                                                                Lottie.asset(
+                                                                    'assets/animations/greenn.json',
+                                                                    repeat:
+                                                                        true,
+                                                                    reverse:
+                                                                        true,
+                                                                    height: 25)
                                                               ],
-                                                            )),
+                                                            ),
+                                                            Text(
+                                                              _response!
+                                                                  .cityName
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 13,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      top: 20),
+                                                              child: Text(
+                                                                _response!
+                                                                    .weatherInfo
+                                                                    .description
+                                                                    .toTitleCase(),
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        13,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600),
+                                                              ),
+                                                            )
                                                           ],
                                                         ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    height: 75,
-                                                    width: 59,
-                                                    color: Colors.red,
-                                                    child: IconButton(
-                                                        onPressed: () {
-                                                          removeCityIds(
-                                                              cityWeather[
-                                                                      cityIndex]
-                                                                  .cityId
-                                                                  .toString());
-                                                        },
-                                                        icon: Icon(
-                                                          CupertinoIcons.delete,
-                                                          color: Colors.white,
-                                                        )),
-                                                  ),
+                                                      )),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 22),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          child: Container(
+                                                            width: 80,
+                                                            height: 78,
+                                                            color: Colors
+                                                                .transparent,
+                                                            child: Stack(
+                                                              children: [
+                                                                BackdropFilter(
+                                                                  filter:
+                                                                      ImageFilter
+                                                                          .blur(
+                                                                    sigmaX: 9.0,
+                                                                    sigmaY: 9.0,
+                                                                  ),
+                                                                  child:
+                                                                      Container(),
+                                                                ),
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            12),
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .white
+                                                                            .withOpacity(0.13)),
+                                                                    gradient: LinearGradient(
+                                                                        begin: Alignment
+                                                                            .topLeft,
+                                                                        end: Alignment
+                                                                            .bottomRight,
+                                                                        colors: [
+                                                                          //begin color
+                                                                          Colors
+                                                                              .white
+                                                                              .withOpacity(0.15),
+                                                                          //end color
+                                                                          Colors
+                                                                              .white
+                                                                              .withOpacity(0.05),
+                                                                        ]),
+                                                                  ),
+                                                                ),
+                                                                //child ==> the first/top layer of stack
+                                                                Center(
+                                                                    child:
+                                                                        Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceEvenly,
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .max,
+                                                                  children: [
+                                                                    Text(
+                                                                      _response!
+                                                                              .tempInfo
+                                                                              .temperature
+                                                                              .toStringAsFixed(0) +
+                                                                          '\u00B0',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              28,
+                                                                          fontWeight:
+                                                                              FontWeight.w500),
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          'H:' +
+                                                                              _response!.tempInfo.temperature.toStringAsFixed(0) +
+                                                                              '\u00B0',
+                                                                          style: TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 13,
+                                                                              fontWeight: FontWeight.w600),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              2,
+                                                                        ),
+                                                                        Text(
+                                                                          'L:' +
+                                                                              _response!.tempInfo.temperature.toStringAsFixed(0) +
+                                                                              '\u00B0',
+                                                                          style: TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 13,
+                                                                              fontWeight: FontWeight.w600),
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  ],
+                                                                )),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )
                                                 ],
                                               )
-                                            ],
+                                            ]),
+                                      ),
+                                    )
+                                  : Container();
+                            } else {
+                              int cityIndex = enabled ? index - 1 : index;
+                              return edit == false
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              maintainState: true,
+                                              builder: (context) => HomePage(
+                                                    cityWeather: cityWeather,
+                                                    indexx: index,
+                                                    loc: enabled,
+                                                    response: _response,
+                                                  )),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Card(
+                                          color: Colors.transparent,
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
-                                        ]),
-                                  ),
-                                ));
-                      }
-                    },
-                  ),
-          ),
+                                          child: Stack(
+                                              clipBehavior: Clip.none,
+                                              alignment: Alignment.topLeft,
+                                              children: [
+                                                Ink.image(
+                                                  image: AssetImage(
+                                                      'assets/images/${cityWeather[cityIndex].cityIcon}.jpeg'),
+                                                  height: 115,
+                                                  fit: BoxFit.cover,
+                                                  child: InkWell(
+                                                    hoverColor: Colors.black,
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            maintainState: true,
+                                                            builder:
+                                                                (context) =>
+                                                                    HomePage(
+                                                                      cityWeather:
+                                                                          cityWeather,
+                                                                      indexx:
+                                                                          index,
+                                                                      loc:
+                                                                          enabled,
+                                                                      response:
+                                                                          _response,
+                                                                    )),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                            child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(14.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                cityWeather[
+                                                                        cityIndex]
+                                                                    .cityName,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        19,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              UnixTimestampClock(
+                                                                timezone: cityWeather[
+                                                                        cityIndex]
+                                                                    .cityTimezone
+                                                                    .toInt(),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            20),
+                                                                child: Text(
+                                                                  cityWeather[
+                                                                          cityIndex]
+                                                                      .cityTempDesc
+                                                                      .toTitleCase(),
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          13,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        )),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      22),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                            child: Container(
+                                                              width: 80,
+                                                              height: 78,
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: Stack(
+                                                                children: [
+                                                                  BackdropFilter(
+                                                                    filter:
+                                                                        ImageFilter
+                                                                            .blur(
+                                                                      sigmaX:
+                                                                          9.0,
+                                                                      sigmaY:
+                                                                          9.0,
+                                                                    ),
+                                                                    child:
+                                                                        Container(),
+                                                                  ),
+                                                                  Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .white
+                                                                              .withOpacity(0.13)),
+                                                                      gradient: LinearGradient(
+                                                                          begin: Alignment
+                                                                              .topLeft,
+                                                                          end: Alignment
+                                                                              .bottomRight,
+                                                                          colors: [
+                                                                            //begin color
+                                                                            Colors.white.withOpacity(0.15),
+                                                                            //end color
+                                                                            Colors.white.withOpacity(0.05),
+                                                                          ]),
+                                                                    ),
+                                                                  ),
+                                                                  //child ==> the first/top layer of stack
+                                                                  Center(
+                                                                      child:
+                                                                          Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceEvenly,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    children: [
+                                                                      Text(
+                                                                        cityWeather[cityIndex].cityTemp.toStringAsFixed(0) +
+                                                                            '\u00B0',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .white,
+                                                                            fontSize:
+                                                                                28,
+                                                                            fontWeight:
+                                                                                FontWeight.w500),
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          Text(
+                                                                            'H:' +
+                                                                                cityWeather[cityIndex].cityHtemp.toStringAsFixed(0) +
+                                                                                '\u00B0',
+                                                                            style: TextStyle(
+                                                                                color: Colors.white,
+                                                                                fontSize: 13,
+                                                                                fontWeight: FontWeight.w600),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width:
+                                                                                2,
+                                                                          ),
+                                                                          Text(
+                                                                            'L:' +
+                                                                                cityWeather[cityIndex].cityLtemp.toStringAsFixed(0) +
+                                                                                '\u00B0',
+                                                                            style: TextStyle(
+                                                                                color: Colors.white,
+                                                                                fontSize: 13,
+                                                                                fontWeight: FontWeight.w600),
+                                                                          ),
+                                                                        ],
+                                                                      )
+                                                                    ],
+                                                                  )),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    )
+                                                  ],
+                                                )
+                                              ]),
+                                        ),
+                                      ))
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      child: Center(
+                                        child: Card(
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          child: Stack(
+                                              clipBehavior: Clip.none,
+                                              alignment: Alignment.topLeft,
+                                              children: [
+                                                Ink.image(
+                                                  image: AssetImage(
+                                                      'assets/images/${cityWeather[cityIndex].cityIcon}.jpeg'),
+                                                  height: 75,
+                                                  fit: BoxFit.cover,
+                                                  child: InkWell(
+                                                    hoverColor: Colors.black,
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            maintainState: true,
+                                                            builder:
+                                                                (context) =>
+                                                                    HomePage(
+                                                                      cityWeather:
+                                                                          cityWeather,
+                                                                      indexx:
+                                                                          index,
+                                                                      loc: true,
+                                                                      response:
+                                                                          _response,
+                                                                    )),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                            child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(14.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                cityWeather[
+                                                                        cityIndex]
+                                                                    .cityName,
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        19,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              UnixTimestampClock(
+                                                                timezone: cityWeather[
+                                                                        cityIndex]
+                                                                    .cityTimezone
+                                                                    .toInt(),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        )),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      22),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                            child: Container(
+                                                              width: 45,
+                                                              height: 45,
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: Stack(
+                                                                children: [
+                                                                  BackdropFilter(
+                                                                    filter:
+                                                                        ImageFilter
+                                                                            .blur(
+                                                                      sigmaX:
+                                                                          9.0,
+                                                                      sigmaY:
+                                                                          9.0,
+                                                                    ),
+                                                                    child:
+                                                                        Container(),
+                                                                  ),
+                                                                  Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      border: Border.all(
+                                                                          color: Colors
+                                                                              .white
+                                                                              .withOpacity(0.13)),
+                                                                      gradient: LinearGradient(
+                                                                          begin: Alignment
+                                                                              .topLeft,
+                                                                          end: Alignment
+                                                                              .bottomRight,
+                                                                          colors: [
+                                                                            //begin color
+                                                                            Colors.white.withOpacity(0.15),
+                                                                            //end color
+                                                                            Colors.white.withOpacity(0.05),
+                                                                          ]),
+                                                                    ),
+                                                                  ),
+
+                                                                  //child ==> the first/top layer of stack
+                                                                  Center(
+                                                                      child:
+                                                                          Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceEvenly,
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    children: [
+                                                                      Text(
+                                                                        cityWeather[cityIndex].cityTemp.toStringAsFixed(0) +
+                                                                            '\u00B0',
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .white,
+                                                                            fontSize:
+                                                                                17,
+                                                                            fontWeight:
+                                                                                FontWeight.w500),
+                                                                      ),
+                                                                    ],
+                                                                  )),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          height: 75,
+                                                          width: 59,
+                                                          color: Colors.red,
+                                                          child: IconButton(
+                                                              onPressed: () {
+                                                                removeCityIds(
+                                                                    cityWeather[
+                                                                            cityIndex]
+                                                                        .cityId
+                                                                        .toString());
+                                                              },
+                                                              icon: Icon(
+                                                                CupertinoIcons
+                                                                    .delete,
+                                                                color: Colors
+                                                                    .white,
+                                                              )),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ]),
+                                        ),
+                                      ));
+                            }
+                          },
+                        )),
         ]),
       ),
     );

@@ -50,6 +50,8 @@ dependencies:
   sleek_circular_slider: ^2.0.1
   smooth_compass: ^2.0.4
   arrow_path: ^3.0.0
+  weather_icons: ^3.0.0
+  palette_generator: ^0.3.3+2
 
 dev_dependencies:
   flutter_test:
