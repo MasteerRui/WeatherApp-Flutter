@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<Object> fetchWeather(lat, lon) async {
     final response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&exclude=minutely&appid=ef5fcf1d7c5621b52cc80ce4f94be994&units=metric'));
+        'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&exclude=minutely&appid=Add Here&units=metric'));
 
     if (response.statusCode == 200) {
       List<HourlyData> weatherData = [];
