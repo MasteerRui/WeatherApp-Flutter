@@ -1,5 +1,5 @@
 <foreignObject>
-<h1 style="align-items: center; align-content: center;">
+<h1 style="display: flex ;align-items: center; align-content: center;">
   <img src="https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather-2019-02-07.png" alt="Image" width="40" style="border-radius: 10px;">
   Flutter Weather App
 </h1>
