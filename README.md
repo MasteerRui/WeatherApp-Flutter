@@ -19,15 +19,12 @@ To use this app, follow these steps:
 2. Just try it on Android Studio with flutter 
 
 ## Screenshots
-  <div style="max-width: 200px; max-height: 400px; display: inline-block;">
-    <p>Title 1</p>
-    <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3" style="width: 25%; height: auto;">
-  </div>
+| Title 1               | Title 2               |
+| :-------------------: | :-------------------: |
+| ![Screenshot 1](https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3) | ![Screenshot 2](https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3) |
 
-  <div style="max-width: 200px; max-height: 400px; display: inline-block;">
-    <p>Title 2</p>
-    <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3" style="width: 25%; height: auto;">
-  </div>
+
+
 
 
 ![Screenshot 2](screenshots/screenshot2.png)
