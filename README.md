@@ -23,9 +23,9 @@ To use this app, follow these steps:
 | :-------------------: | :-------------------: | :-------------------: | :-------------------: |
 | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3" alt="Screenshot 1" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/bebb5c62-c5ae-4ea3-9461-4971f08d3092" alt="Screenshot 3" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/ac6d96e6-3242-4fb7-bc71-a7d6a5e8a1c7" alt="Screenshot 2" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/2f3482a2-34c8-4247-8846-cebb8588df81" alt="Screenshot 4" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 4" width="200"> |
 
-| City Screen ( Part 1 ) | City Screen ( Part 2 ) |
-| :-------------------: | :-------------------: |
-| <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 5" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/7cfc89df-9e04-4bb2-9b2c-a4fb153f4e99" alt="Screenshot 6" width="200"> |
+| City Screen ( Part 1 ) | City Screen ( Part 2 ) | City Screen ( Part 3 ) | City Screen ( Other One ) |
+| :-------------------: | :-------------------: | :-------------------: | :-------------------: |
+| <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 5" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/7cfc89df-9e04-4bb2-9b2c-a4fb153f4e99" alt="Screenshot 6" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/3b352e42-168d-428f-bef7-fc64c6c27d86" alt="Screenshot 7" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/4bbda8e9-ee57-46c5-91ff-a7515b45ce85" alt="Screenshot 8" width="200"> |
 
 ## Contributing!
 Contributions are welcome! If you'd like to contribute to this project, please follow these guidelines:
