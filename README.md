@@ -1,4 +1,9 @@
-# Flutter Weather App
+<foreignObject>
+<h1 style="align-items: center; align-content: center;">
+  <img src="https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather-2019-02-07.png" alt="Image" width="40" style="border-radius: 10px;">
+  Flutter Weather App
+</h1>
+</foreignObject>
 
 This Flutter Weather App is designed to provide users with a sleek and intuitive weather experience, inspired by the Apple Weather App. It offers weather information for every city and locality worldwide, and even provides current location weather data. Whether you're a developer looking for a reference project or a weather enthusiast, this app is a great starting point.
 
