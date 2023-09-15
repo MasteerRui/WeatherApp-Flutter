@@ -19,15 +19,9 @@ To use this app, follow these steps:
 2. Just try it on Android Studio with flutter 
 
 ## Screenshots
-| Title 1               | Title 2               |
-| :-------------------: | :-------------------: |
-| ![Screenshot 1](https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3) | ![Screenshot 2](https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3) |
-
-
-
-
-
-![Screenshot 2](screenshots/screenshot2.png)
+| Main Screen ( Celsius )| Main Screen ( Fahrenheit ) | Main Screen ( Delete City ) |
+| :-------------------: | :-------------------: | :-------------------: |
+| <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3" alt="Screenshot 1" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/bebb5c62-c5ae-4ea3-9461-4971f08d3092" alt="Screenshot 3" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/ac6d96e6-3242-4fb7-bc71-a7d6a5e8a1c7" alt="Screenshot 2" width="200"> |
 
 ## Contributing
 
