@@ -16,7 +16,9 @@ To use this app, follow these steps:
 
 1. Clone this repository to your local machine.
  - git clone https://github.com/MasteerRui/WeatherApp-Flutter.git
-2. Just try it on Android Studio with flutter 
+2. Add a new [Open Weather Api Key](https://openweathermap.org/api)
+ - line 67 ```https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather/lib/pages/main_pages/homepage.dart```
+3. Just try it on Android Studio with flutter 
 
 ## Screenshots
 | Main Screen ( Celsius )| Main Screen ( Fahrenheit ) | Main Screen ( Delete City ) | Main Screen ( Search City ) |
@@ -38,7 +40,7 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/LICENSE).
 
 ## Issues
 Enjoy using the Flutter Weather App! If you have any questions or encounter any issues, please feel free to [open an issue](https://github.com/MasteerRui/WeatherApp-Flutter/issues).
