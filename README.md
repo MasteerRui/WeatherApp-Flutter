@@ -41,4 +41,4 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 This project is licensed under the [MIT License](LICENSE).
 
 ## Issues
-Enjoy using the Flutter Weather App! If you have any questions or encounter any issues, please feel free to [open an issue](https://github.com/yourusername/flutter-weather-app/issues).
+Enjoy using the Flutter Weather App! If you have any questions or encounter any issues, please feel free to [open an issue](https://github.com/MasteerRui/WeatherApp-Flutter/issues).
