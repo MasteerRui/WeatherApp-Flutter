@@ -23,11 +23,12 @@ To use this app, follow these steps:
 ## Screenshots
 | Main Screen ( Celsius )| Main Screen ( Fahrenheit ) | Main Screen ( Delete City ) | Main Screen ( Search City ) |
 | :-------------------: | :-------------------: | :-------------------: | :-------------------: |
-| <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/0d2ccab2-854a-402f-a1ea-dc9eb10055c3" alt="Screenshot 1" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/bebb5c62-c5ae-4ea3-9461-4971f08d3092" alt="Screenshot 3" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/ac6d96e6-3242-4fb7-bc71-a7d6a5e8a1c7" alt="Screenshot 2" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/2f3482a2-34c8-4247-8846-cebb8588df81" alt="Screenshot 4" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 4" width="200"> |
+| <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/80a0e4f5-8822-46e2-bf87-fa6eb4f75e46" alt="Screenshot 1" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/1e4313d9-8c20-45aa-8c14-be8ef457e7c6" alt="Screenshot 2" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/3ff74f4f-58f5-431d-9a68-51a3268ae180" alt="Screenshot 3" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/2f3482a2-34c8-4247-8846-cebb8588df81" alt="Screenshot 4" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 5" width="200"> |
 
 | City Screen ( Part 1 ) | City Screen ( Part 2 ) | City Screen ( Part 3 ) | City Screen ( Other One ) |
 | :-------------------: | :-------------------: | :-------------------: | :-------------------: |
 | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/98d1694c-89a8-4626-bfe0-56cefde2391e" alt="Screenshot 5" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/7cfc89df-9e04-4bb2-9b2c-a4fb153f4e99" alt="Screenshot 6" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/3b352e42-168d-428f-bef7-fc64c6c27d86" alt="Screenshot 7" width="200"> | <img src="https://github.com/MasteerRui/WeatherApp-Flutter/assets/75584975/ffa87856-c416-406f-8fee-eb64069c9339" alt="Screenshot 8" width="200"> |
+
 
 ## Contributing!
 Contributions are welcome! If you'd like to contribute to this project, please follow these guidelines:
