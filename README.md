@@ -22,6 +22,8 @@ To use this app, follow these steps:
  - git clone https://github.com/MasteerRui/WeatherApp-Flutter.git
 2. Add a new [Open Weather Api Key](https://openweathermap.org/api)
  - line 67 ```https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather/lib/pages/main_pages/homepage.dart```
+ - line 9 ```https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather/lib/pages/services/dart_service.dart```
+ - line 47 ```https://github.com/MasteerRui/WeatherApp-Flutter/blob/main/weather/lib/pages/main_pages/listpage.dart```
 3. Just try it on Android Studio with flutter 
 
 ## Screenshots
